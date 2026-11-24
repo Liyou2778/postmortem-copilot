@@ -125,11 +125,20 @@ NetworkChaos delay：通过
 修复：host 加载 ip_tables / iptable_filter，并写入 modules-load.d
 ```
 
+### IOChaos latency：通过
+
+```text
+目标 Pod：/data/io-test 写入 + fsync
+基线写入耗时：0.0026–0.0068s
+IOChaos latency 100ms 注入后：0.9168–0.9382s
+```
+
+资源创建/清理正常，I/O 延迟可归因。
+
 ## 4. 仍需完成
 
 ```text
 HTTPChaos：target=Request/Response 都出现 000 连接错误，未通过
-IOChaos：未做
 ```
 
 ## 5. 当前结论
@@ -138,7 +147,7 @@ IOChaos：未做
 PodChaos：通过
 NetworkChaos delay：通过
 StressChaos CPU：通过
+IOChaos latency：通过
 HTTPChaos：未通过
-IOChaos：未做
-PRD 100% 的 Chaos 场景库仍不完整
+Chaos 场景库仍缺 HTTPChaos，PRD 该项只能标部分完成
 ```

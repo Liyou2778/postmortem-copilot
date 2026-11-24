@@ -1,0 +1,18 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: IOChaos
+metadata:
+  name: copilot-io-latency
+  namespace: copilot
+spec:
+  action: latency
+  mode: one
+  selector:
+    namespaces:
+      - copilot
+    labelSelectors:
+      role: io-chaos-client
+  volumePath: /data
+  path: /data/io-test
+  delay: "100ms"
+  percent: 100
+  duration: "30s"
