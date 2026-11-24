@@ -5,7 +5,7 @@
 > **交付状态（2026-11-24）：M10 核心版本已冻结。**
 > 已完成核心链路、评测 3/3、CMDB 租户隔离、K8s 多副本、RBAC/完整 OIDC 联调、
 > CI 门禁、真实 OTel Collector/Jaeger。**PRD 100% 未完成**，单节点非 HA、
-> OIDC 生产化、Network/IO 可观测、Grafana 看板/告警等例外见
+> OIDC 生产化、Network/IO 可观测、Grafana 告警通知等例外见
 > [M10 核心交付验收报告](docs/M10核心交付验收报告.md)。
 
 > 设计文档见上级目录：[P1-技术设计.md](../P1-技术设计.md)
@@ -64,7 +64,7 @@
 | **M10.1 指标包 + counter** | ✅ 已上线 | 目录支持 gauge/counter + 8 条扩展指标；磁盘 IO 走 `rate()`，修掉磁盘场景 0/3 |
 | **M10.2 企业级 CMDB** | ✅ 已上线 | CI 图/关系/时间历史、变更审批状态机、Token RBAC、审计日志、管理 UI、v2 API + v1 MCP 兼容 |
 | **M10.2 阿里云发现** | ✅ 已上线 | ECS 实例 RAM 角色 + Resource Center/ActionTrail 只读；15 分钟同步，unowned=0 |
-| **M10.3 影响面/Trace/成本** | ✅ 已上线 | 可配置业务口径、OTel 形状 trace、真实 OTel Collector + Jaeger、按 step token/成本；报告含成本章节 |
+| **M10.3 影响面/Trace/成本** | ✅ 已上线 | 可配置业务口径、OTel 形状 trace、真实 OTel Collector + Jaeger + Grafana 看板/告警规则、按 step token/成本；报告含成本章节 |
 | **M10.4 通用 DAG + 局部重规划** | ✅ 已上线 | DAG 校验/拓扑执行；失败只跳过下游，独立分支继续；一致性哈希分配 |
 | **M10.5 K8s 多副本 + 切流** | ✅ 已上线 | k3d 单节点、Helm、2 副本、滚动更新 30/30 无中断；公网 8000 -> 代理 -> K8s |
 | **M10.6 本地认证 + 团队租户** | ✅ 已上线 | 本地账号/API Key、viewer/operator/tenant_admin/platform_admin、任务/报告/OSS/CMDB 租户隔离、DB 限流、同源 CSRF；完整 OIDC 授权码流程已用 Keycloak 联调（dev），可信 header 模式保留 |
@@ -226,7 +226,7 @@ docker-compose.yml
 1. OIDC 生产化：Keycloak 当前 dev/HTTP/H2，需要 HTTPS、持久化、备份、轮换；
 2. 跨节点 K8s HA（当前单节点 k3d）；
 3. Network/IO Chaos 可观测验收；
-4. Grafana 看板/告警（Collector/Jaeger 已通）；
+4. Grafana 告警通知渠道（看板/规则已通）；
 5. ~~远端 GitHub Actions 实际运行~~ ✅ 已运行两次成功；
 6. 管理页/CMDB 写表单的逐表单 CSRF（登录表单已完成）。
 7. 影响面业务系数（财务口径）仍未配置。

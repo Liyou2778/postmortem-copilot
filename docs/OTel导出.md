@@ -65,7 +65,27 @@ Collector debug exporter: resource spans 1, spans 6
 Jaeger services: ["postmortem-copilot","jaeger-all-in-one"]
 ```
 
-仍未做：Grafana 看板、告警规则、Collector 高可用/持久化。
+### Grafana
+
+已部署：
+
+```text
+grafana/grafana:11.2.0
+:3000（内网）
+Prometheus datasource: http://172.24.19.160:9090
+Dashboard: Copilot / Postmortem Copilot
+Alert rule: Copilot HTTP 5xx rate（阈值 0.05/s，持续 2m）
+```
+
+验证：
+
+```text
+Grafana /api/health: database ok, version 11.2.0
+dashboard uid: copilot-overview
+alert rule: Copilot HTTP 5xx rate
+```
+
+仍未做：告警通知渠道（webhook/邮件）联调、Collector 高可用/持久化。
 
 ## 3. 测试
 
