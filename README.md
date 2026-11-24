@@ -213,6 +213,7 @@ docs/Chaos与负对照.md
 docs/真实Prometheus评测.md
 docs/OTel导出.md
 docs/PRD100验收矩阵.md
+docs/Chaos可观测验收.md
 docs/M10核心交付验收报告.md
 migrations/           001–005（init / mysql / catalog / metric pack / impact policy）
 deploy/prometheus.yml
