@@ -1,8 +1,7 @@
 # OTel Trace 导出
 
-> 状态：投影 + OTLP/HTTP 导出适配器已完成；已用本地 mock receiver
-> 完成端到端导出验证（200 / 6 spans）；验证后已停止 mock 并清空生产
-> endpoint，未在真实 Collector 上压测。
+> 状态：投影 + OTLP/HTTP 导出适配器 + **真实 OTel Collector + Jaeger**
+> 已完成端到端验证；Jaeger UI 可查询到 `postmortem-copilot` trace。
 
 ## 1. 已有能力
 
@@ -47,7 +46,26 @@ POST /api/v1/tasks/{task_id}/trace/export
 - 导出失败不会影响分析/报告；
 - 不引入 OTel SDK，使用 OTLP/HTTP JSON，减少镜像依赖；
 - `OTEL_EXPORTER_ENDPOINT` 为空时明确返回未配置；
-- 没有真实 collector 的端到端验证，只有单元测试和本地 mock。
+- 当前部署：
+
+```text
+OTel Collector：otel/opentelemetry-collector-contrib:0.110.0
+  host :4319 -> container :4318
+Jaeger：jaegertracing/all-in-one:1.60
+  UI :16686
+  OTLP :4317
+应用 OTEL_EXPORTER_ENDPOINT=http://172.24.19.160:4319
+```
+
+验证：
+
+```text
+trace/export: {"ok": true}
+Collector debug exporter: resource spans 1, spans 6
+Jaeger services: ["postmortem-copilot","jaeger-all-in-one"]
+```
+
+仍未做：Grafana 看板、告警规则、Collector 高可用/持久化。
 
 ## 3. 测试
 
