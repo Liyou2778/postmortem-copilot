@@ -1,0 +1,18 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: StressChaos
+metadata:
+  name: copilot-cpu-stress
+  namespace: copilot
+spec:
+  mode: one
+  duration: "25s"
+  selector:
+    namespaces:
+      - copilot
+    labelSelectors:
+      app.kubernetes.io/name: postmortem-copilot
+      app.kubernetes.io/instance: copilot
+  stressors:
+    cpu:
+      workers: 2
+      load: 100

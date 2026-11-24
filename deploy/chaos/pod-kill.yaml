@@ -1,0 +1,15 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: copilot-pod-kill
+  namespace: copilot
+spec:
+  action: pod-kill
+  mode: one
+  duration: "30s"
+  selector:
+    namespaces:
+      - copilot
+    labelSelectors:
+      app.kubernetes.io/name: postmortem-copilot
+      app.kubernetes.io/instance: copilot

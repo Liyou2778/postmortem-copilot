@@ -1,0 +1,51 @@
+{
+  "summary": {
+    "count": 3,
+    "recall_at_1": 0.0,
+    "recall_at_3": 1.0,
+    "mrr": 0.5,
+    "by_fault": {
+      "deploy_regression": {
+        "count": 3,
+        "recall_at_3": 1.0
+      }
+    },
+    "elapsed_s": 14.5,
+    "llm": "mock"
+  },
+  "runs": [
+    {
+      "scenario": "S001",
+      "fault": "deploy_regression",
+      "service": "order-service",
+      "status": "REVIEWING",
+      "latency_s": 1.88,
+      "hit@1": false,
+      "hit@3": true,
+      "rr": 0.5,
+      "rank1": "订单服务 v2.31 把连接池上限从 200 降到 50，导致支付链路排队超时"
+    },
+    {
+      "scenario": "S002",
+      "fault": "deploy_regression",
+      "service": "pay-service",
+      "status": "REVIEWING",
+      "latency_s": 1.47,
+      "hit@1": false,
+      "hit@3": true,
+      "rr": 0.5,
+      "rank1": "订单服务 v2.31 把连接池上限从 200 降到 50，导致支付链路排队超时"
+    },
+    {
+      "scenario": "S003",
+      "fault": "deploy_regression",
+      "service": "cart-service",
+      "status": "REVIEWING",
+      "latency_s": 1.58,
+      "hit@1": false,
+      "hit@3": true,
+      "rr": 0.5,
+      "rank1": "订单服务 v2.31 把连接池上限从 200 降到 50，导致支付链路排队超时"
+    }
+  ]
+}

@@ -1,0 +1,149 @@
+{
+  "summary": {
+    "count": 9,
+    "recall_at_1": 0.8889,
+    "recall_at_3": 1.0,
+    "mrr": 0.9259,
+    "by_fault": {
+      "config_drift": {
+        "count": 1,
+        "recall_at_3": 1.0
+      },
+      "dependency_timeout": {
+        "count": 1,
+        "recall_at_3": 1.0
+      },
+      "deploy_regression": {
+        "count": 1,
+        "recall_at_3": 1.0
+      },
+      "dns_error": {
+        "count": 1,
+        "recall_at_3": 1.0
+      },
+      "io_stall": {
+        "count": 1,
+        "recall_at_3": 1.0
+      },
+      "network_partition": {
+        "count": 1,
+        "recall_at_3": 1.0
+      },
+      "pod_kill": {
+        "count": 1,
+        "recall_at_3": 1.0
+      },
+      "resource_saturation": {
+        "count": 1,
+        "recall_at_3": 1.0
+      },
+      "traffic_spike": {
+        "count": 1,
+        "recall_at_3": 1.0
+      }
+    },
+    "elapsed_s": 202.9,
+    "llm": "real"
+  },
+  "runs": [
+    {
+      "scenario": "S001",
+      "fault": "deploy_regression",
+      "service": "order-service",
+      "status": "REVIEWING",
+      "latency_s": 23.6,
+      "hit@1": true,
+      "hit@3": true,
+      "rr": 1.0,
+      "rank1": "order-service v2.31 将连接池上限从 200 降到 50，造成连接争用，是 P99 延迟从 240ms"
+    },
+    {
+      "scenario": "S002",
+      "fault": "resource_saturation",
+      "service": "order-service",
+      "status": "REVIEWING",
+      "latency_s": 19.6,
+      "hit@1": true,
+      "hit@3": true,
+      "rr": 1.0,
+      "rank1": "order-service 的 Pod order-7f9c 出现 78% CPU 节流，导致请求排队与 P99 延迟从"
+    },
+    {
+      "scenario": "S003",
+      "fault": "dependency_timeout",
+      "service": "order-service",
+      "status": "REVIEWING",
+      "latency_s": 17.96,
+      "hit@1": true,
+      "hit@3": true,
+      "rr": 1.0,
+      "rank1": "order-service 调用的下游 inventory 出现上游超时与 context deadline excee"
+    },
+    {
+      "scenario": "S004",
+      "fault": "config_drift",
+      "service": "order-service",
+      "status": "REVIEWING",
+      "latency_s": 18.02,
+      "hit@1": true,
+      "hit@3": true,
+      "rr": 1.0,
+      "rank1": "最可能的根因是 13:05:37 在发布流程之外把 runtime config pool.size 改成 50 的配置"
+    },
+    {
+      "scenario": "S005",
+      "fault": "pod_kill",
+      "service": "order-service",
+      "status": "REVIEWING",
+      "latency_s": 20.3,
+      "hit@1": true,
+      "hit@3": true,
+      "rr": 1.0,
+      "rank1": "order-7f9c 的 liveness probe 失败并触发容器重启，是 order-service P99 延迟"
+    },
+    {
+      "scenario": "S006",
+      "fault": "network_partition",
+      "service": "order-service",
+      "status": "REVIEWING",
+      "latency_s": 16.58,
+      "hit@1": true,
+      "hit@3": true,
+      "rr": 1.0,
+      "rank1": "order-service 日志出现 redis 6379 端口 dial tcp i/o timeout 与 retr"
+    },
+    {
+      "scenario": "S007",
+      "fault": "dns_error",
+      "service": "order-service",
+      "status": "REVIEWING",
+      "latency_s": 24.12,
+      "hit@1": false,
+      "hit@3": true,
+      "rr": 0.333,
+      "rank1": "上游不可达引发 order-service P99 延迟由 240ms 升至 520ms，属于根因的下游影响而非独立故障"
+    },
+    {
+      "scenario": "S008",
+      "fault": "io_stall",
+      "service": "order-service",
+      "status": "REVIEWING",
+      "latency_s": 21.05,
+      "hit@1": true,
+      "hit@3": true,
+      "rr": 1.0,
+      "rank1": "根因最可能是下游 mysql-order 发生 I/O 阻塞（io_stall），并经调用链将延迟传导至 order-s"
+    },
+    {
+      "scenario": "S009",
+      "fault": "traffic_spike",
+      "service": "order-service",
+      "status": "REVIEWING",
+      "latency_s": 30.15,
+      "hit@1": true,
+      "hit@3": true,
+      "rr": 1.0,
+      "rank1": "本次故障是流量突增（traffic_spike）导致的容量类问题，而非变更引发：6 个实例全部健康，P99 延迟从 24"
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+services:
+  # ---------------------------------------------------------------- default
+  # Default profile is the lightweight M1 stack: core + redis only.
+  # It fits comfortably in the 6 GB WSL budget.
+  core:
+    build: ./services/core
+    ports: ["8000:8000"]
+    environment:
+      CORE_DB_PATH: /data/core.db
+      REDIS_URL: "redis://redis:6379/0"
+    volumes: ["core-data:/data"]
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8000/healthz')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
+    volumes: ["redis-data:/data"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------- profile: db
+  # MySQL is not needed for M1 (the core runs on SQLite); enable it from M2.
+  # `docker compose --profile db up -d`
+  mysql:
+    image: mysql:8.0
+    profiles: ["db"]
+    # 3306 is occupied by the host's MySQL57 service; map to 3307 instead.
+    ports: ["3307:3306"]
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: copilot
+      MYSQL_USER: copilot
+      MYSQL_PASSWORD: copilot
+    command:
+      - "--character-set-server=utf8mb4"
+      - "--collation-server=utf8mb4_unicode_ci"
+      - "--innodb-buffer-pool-size=256M"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-ucopilot", "-pcopilot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------- profile: obs
+  # `docker compose --profile obs up -d`
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    profiles: ["obs"]
+    ports: ["9090:9090"]
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=3d"
+    volumes:
+      - ./deploy/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prom-data:/prometheus
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.3.0
+    profiles: ["obs"]
+    ports: ["3000:3000"]
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+    volumes: ["grafana-data:/var/lib/grafana"]
+    depends_on: [prometheus]
+    restart: unless-stopped
+
+volumes:
+  core-data:
+  redis-data:
+  mysql-data:
+  prom-data:
+  grafana-data:

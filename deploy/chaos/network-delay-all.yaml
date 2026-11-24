@@ -1,0 +1,19 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: copilot-network-delay-all
+  namespace: copilot
+spec:
+  action: delay
+  mode: all
+  duration: "25s"
+  delay:
+    latency: "200ms"
+    jitter: "50ms"
+  selector:
+    namespaces:
+      - copilot
+    labelSelectors:
+      app.kubernetes.io/name: postmortem-copilot
+      app.kubernetes.io/instance: copilot
+  direction: to

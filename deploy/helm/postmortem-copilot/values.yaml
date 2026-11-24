@@ -1,0 +1,45 @@
+replicaCount: 2
+
+image:
+  repository: postmortem-copilot
+  tag: local
+  pullPolicy: IfNotPresent
+
+service:
+  type: NodePort
+  port: 80
+  targetPort: 8000
+  nodePort: 30080
+
+# Host-side services (Prometheus/Loki/CMDB/devstack) are bound on the ECS
+# private address; pods reach them over the VPC. Security group stays closed.
+hostIP: "172.24.19.160"
+
+env:
+  PROMETHEUS_URL: "http://172.24.19.160:9090"
+  LOKI_URL: "http://172.24.19.160:3100"
+  CMDB_URL: "http://172.24.19.160:9200"
+  DEPLOY_URL: "http://172.24.19.160:9200"
+  DEVSTACK_URL: "http://172.24.19.160:9101"
+  TOOL_URL_ALLOWLIST: "172.24.19.160,localhost,127.0.0.1,prometheus,loki"
+  TOOL_BACKEND: "mcp"
+  MCP_GATEWAY_MODE: "shared"
+  MCP_HEALTH_INTERVAL_S: "30"
+
+# Existing secret created by scripts/k8s_prepare_secret.sh from /opt/copilot/.env.
+envSecretName: copilot-env
+
+resources:
+  requests:
+    cpu: "200m"
+    memory: "256Mi"
+  limits:
+    cpu: "1"
+    memory: "768Mi"
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+nodeSelector: {}
+tolerations: []

@@ -1,0 +1,62 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  core:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install lint tooling
+        run: pip install ruff==0.8.4
+
+      - name: Lint
+        run: ruff check services/core
+
+      - name: Compile check
+        run: python -m compileall -q services/core/app
+
+      - name: Domain tests (no third-party deps required)
+        run: python -m unittest discover -s services/core/tests -v
+
+      - name: Import check (API layer)
+        run: |
+          pip install -r services/core/requirements.txt
+          python -c "import sys; sys.path.insert(0,'services/core'); import app.api as m; print(m.app.title)"
+
+  eval-harness:
+    # Runs the evaluation harness against the mock model so the metric code and
+    # the fault-injection path are exercised without needing an API key.
+    # The real gate (--llm real) is run manually, see docs/评测方法论.md.
+    runs-on: ubuntu-latest
+    needs: core
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps
+        run: pip install -r services/core/requirements.txt
+
+      - name: Start devstack
+        run: |
+          python -m uvicorn services.devstack.app:app --host 127.0.0.1 --port 9100 &
+          for i in $(seq 1 30); do
+            curl -sf http://127.0.0.1:9100/healthz && break
+            sleep 1
+          done
+
+      - name: Harness smoke (mock, 3 scenarios)
+        run: |
+          python scripts/run_eval.py --per-fault 1 --limit 3 --llm mock \
+            --threshold 0.0 --out eval-ci
+          test -f eval-ci.json
+

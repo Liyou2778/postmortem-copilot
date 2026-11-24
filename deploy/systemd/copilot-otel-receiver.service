@@ -1,0 +1,13 @@
+[Unit]
+Description=OTLP verification receiver (M10.7)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/copilot
+ExecStart=/opt/copilot/.venv/bin/python /opt/copilot/scripts/otel_receiver.py --host 0.0.0.0 --port 4318
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,149 @@
+{
+  "summary": {
+    "count": 9,
+    "recall_at_1": 0.1111,
+    "recall_at_3": 0.2222,
+    "mrr": 0.1667,
+    "by_fault": {
+      "config_drift": {
+        "count": 1,
+        "recall_at_3": 0.0
+      },
+      "dependency_timeout": {
+        "count": 1,
+        "recall_at_3": 0.0
+      },
+      "deploy_regression": {
+        "count": 1,
+        "recall_at_3": 0.0
+      },
+      "dns_error": {
+        "count": 1,
+        "recall_at_3": 0.0
+      },
+      "io_stall": {
+        "count": 1,
+        "recall_at_3": 0.0
+      },
+      "network_partition": {
+        "count": 1,
+        "recall_at_3": 1.0
+      },
+      "pod_kill": {
+        "count": 1,
+        "recall_at_3": 1.0
+      },
+      "resource_saturation": {
+        "count": 1,
+        "recall_at_3": 0.0
+      },
+      "traffic_spike": {
+        "count": 1,
+        "recall_at_3": 0.0
+      }
+    },
+    "elapsed_s": 27.3,
+    "llm": "mock"
+  },
+  "runs": [
+    {
+      "scenario": "S001",
+      "fault": "deploy_regression",
+      "service": "order-service",
+      "status": "REVIEWING",
+      "latency_s": 2.06,
+      "hit@1": false,
+      "hit@3": false,
+      "rr": 0.0,
+      "rank1": "订单服务 v2.31 把连接池上限从 200 降到 50，导致支付链路排队超时"
+    },
+    {
+      "scenario": "S002",
+      "fault": "resource_saturation",
+      "service": "order-service",
+      "status": "REVIEWING",
+      "latency_s": 1.7,
+      "hit@1": false,
+      "hit@3": false,
+      "rr": 0.0,
+      "rank1": "订单服务 v2.31 把连接池上限从 200 降到 50，导致支付链路排队超时"
+    },
+    {
+      "scenario": "S003",
+      "fault": "dependency_timeout",
+      "service": "order-service",
+      "status": "REVIEWING",
+      "latency_s": 1.78,
+      "hit@1": false,
+      "hit@3": false,
+      "rr": 0.0,
+      "rank1": "订单服务 v2.31 把连接池上限从 200 降到 50，导致支付链路排队超时"
+    },
+    {
+      "scenario": "S004",
+      "fault": "config_drift",
+      "service": "order-service",
+      "status": "REVIEWING",
+      "latency_s": 1.68,
+      "hit@1": false,
+      "hit@3": false,
+      "rr": 0.0,
+      "rank1": "订单服务 v2.31 把连接池上限从 200 降到 50，导致支付链路排队超时"
+    },
+    {
+      "scenario": "S005",
+      "fault": "pod_kill",
+      "service": "order-service",
+      "status": "REVIEWING",
+      "latency_s": 1.69,
+      "hit@1": false,
+      "hit@3": true,
+      "rr": 0.5,
+      "rank1": "订单服务 v2.31 把连接池上限从 200 降到 50，导致支付链路排队超时"
+    },
+    {
+      "scenario": "S006",
+      "fault": "network_partition",
+      "service": "order-service",
+      "status": "REVIEWING",
+      "latency_s": 1.73,
+      "hit@1": true,
+      "hit@3": true,
+      "rr": 1.0,
+      "rank1": "订单服务 v2.31 把连接池上限从 200 降到 50，导致支付链路排队超时"
+    },
+    {
+      "scenario": "S007",
+      "fault": "dns_error",
+      "service": "order-service",
+      "status": "REVIEWING",
+      "latency_s": 1.71,
+      "hit@1": false,
+      "hit@3": false,
+      "rr": 0.0,
+      "rank1": "订单服务 v2.31 把连接池上限从 200 降到 50，导致支付链路排队超时"
+    },
+    {
+      "scenario": "S008",
+      "fault": "io_stall",
+      "service": "order-service",
+      "status": "REVIEWING",
+      "latency_s": 1.7,
+      "hit@1": false,
+      "hit@3": false,
+      "rr": 0.0,
+      "rank1": "订单服务 v2.31 把连接池上限从 200 降到 50，导致支付链路排队超时"
+    },
+    {
+      "scenario": "S009",
+      "fault": "traffic_spike",
+      "service": "order-service",
+      "status": "REVIEWING",
+      "latency_s": 1.68,
+      "hit@1": false,
+      "hit@3": false,
+      "rr": 0.0,
+      "rank1": "订单服务 v2.31 把连接池上限从 200 降到 50，导致支付链路排队超时"
+    }
+  ]
+}

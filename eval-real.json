@@ -1,0 +1,149 @@
+{
+  "summary": {
+    "count": 9,
+    "recall_at_1": 1.0,
+    "recall_at_3": 1.0,
+    "mrr": 1.0,
+    "by_fault": {
+      "config_drift": {
+        "count": 1,
+        "recall_at_3": 1.0
+      },
+      "dependency_timeout": {
+        "count": 1,
+        "recall_at_3": 1.0
+      },
+      "deploy_regression": {
+        "count": 1,
+        "recall_at_3": 1.0
+      },
+      "dns_error": {
+        "count": 1,
+        "recall_at_3": 1.0
+      },
+      "io_stall": {
+        "count": 1,
+        "recall_at_3": 1.0
+      },
+      "network_partition": {
+        "count": 1,
+        "recall_at_3": 1.0
+      },
+      "pod_kill": {
+        "count": 1,
+        "recall_at_3": 1.0
+      },
+      "resource_saturation": {
+        "count": 1,
+        "recall_at_3": 1.0
+      },
+      "traffic_spike": {
+        "count": 1,
+        "recall_at_3": 1.0
+      }
+    },
+    "elapsed_s": 175.5,
+    "llm": "real"
+  },
+  "runs": [
+    {
+      "scenario": "S001",
+      "fault": "deploy_regression",
+      "service": "order-service",
+      "status": "REVIEWING",
+      "latency_s": 18.23,
+      "hit@1": true,
+      "hit@3": true,
+      "rr": 1.0,
+      "rank1": "变更 CHG-20261119-031 将 order-service 连接池上限从 200 降至 50，导致下游 my"
+    },
+    {
+      "scenario": "S002",
+      "fault": "resource_saturation",
+      "service": "order-service",
+      "status": "REVIEWING",
+      "latency_s": 20.38,
+      "hit@1": true,
+      "hit@3": true,
+      "rr": 1.0,
+      "rank1": "order-service 实例自身内存资源饱和是主因，触发 P99 延迟从 240ms 升至 2400ms"
+    },
+    {
+      "scenario": "S003",
+      "fault": "dependency_timeout",
+      "service": "order-service",
+      "status": "REVIEWING",
+      "latency_s": 17.13,
+      "hit@1": true,
+      "hit@3": true,
+      "rr": 1.0,
+      "rank1": "order-service 的 P99 延迟从 240ms 升至 620ms，且出现 upstream timeout "
+    },
+    {
+      "scenario": "S004",
+      "fault": "config_drift",
+      "service": "order-service",
+      "status": "REVIEWING",
+      "latency_s": 16.31,
+      "hit@1": true,
+      "hit@3": true,
+      "rr": 1.0,
+      "rank1": "order-service 的 P99 延迟突增由非发布窗口的运行时配置变更 CFG-20261119-007 导致：p"
+    },
+    {
+      "scenario": "S005",
+      "fault": "pod_kill",
+      "service": "order-service",
+      "status": "REVIEWING",
+      "latency_s": 18.51,
+      "hit@1": true,
+      "hit@3": true,
+      "rr": 1.0,
+      "rank1": "order-service 发生 pod_kill，1 个实例被终止，就绪探针关闭（readiness gate clo"
+    },
+    {
+      "scenario": "S006",
+      "fault": "network_partition",
+      "service": "order-service",
+      "status": "REVIEWING",
+      "latency_s": 17.02,
+      "hit@1": true,
+      "hit@3": true,
+      "rr": 1.0,
+      "rank1": "故障更可能是 order-service 与下游依赖之间的网络分区，与变更无关"
+    },
+    {
+      "scenario": "S007",
+      "fault": "dns_error",
+      "service": "order-service",
+      "status": "REVIEWING",
+      "latency_s": 19.15,
+      "hit@1": true,
+      "hit@3": true,
+      "rr": 1.0,
+      "rank1": "order-service 调用上游 inventory 时 DNS 解析失败（lookup inventory.svc"
+    },
+    {
+      "scenario": "S008",
+      "fault": "io_stall",
+      "service": "order-service",
+      "status": "WAITING_HUMAN",
+      "latency_s": 17.74,
+      "hit@1": true,
+      "hit@3": true,
+      "rr": 1.0,
+      "rank1": "节点磁盘 I/O 饱和（iowait 63%、fsync 耗时 4200ms）是根因，导致 mysql-order 写入"
+    },
+    {
+      "scenario": "S009",
+      "fault": "traffic_spike",
+      "service": "order-service",
+      "status": "REVIEWING",
+      "latency_s": 18.71,
+      "hit@1": true,
+      "hit@3": true,
+      "rr": 1.0,
+      "rank1": "故障根因是 api-gateway 侧流量突增：网关触发限流后，请求仍涌入 order-service，导致 P99 延"
+    }
+  ]
+}

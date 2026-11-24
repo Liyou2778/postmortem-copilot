@@ -1,0 +1,6 @@
+apiVersion: v2
+name: postmortem-copilot
+description: P1 Postmortem Copilot core API (MCP servers run in-process)
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

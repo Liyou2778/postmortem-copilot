@@ -1,0 +1,19 @@
+[Unit]
+Description=Temporary HTTPS tunnel for Keycloak OIDC (serveo)
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -lc 'exec /usr/bin/ssh -T \
+  -o StrictHostKeyChecking=no \
+  -o UserKnownHostsFile=/dev/null \
+  -o ServerAliveInterval=30 \
+  -o ServerAliveCountMax=3 \
+  -o ExitOnForwardFailure=yes \
+  -R 80:localhost:8080 serveo.net 2>&1 | tee -a /var/log/serveo.log'
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
