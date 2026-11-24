@@ -85,7 +85,17 @@ dashboard uid: copilot-overview
 alert rule: Copilot HTTP 5xx rate
 ```
 
-仍未做：告警通知渠道（webhook/邮件）联调、Collector 高可用/持久化。
+告警通知已本地联调：
+
+```text
+Grafana contact point: copilot-webhook
+Webhook receiver: http://172.24.19.160:9009/alert
+测试告警: Copilot alert channel test
+结果: status=firing，values A=1 C=1，webhook 已收到
+```
+
+测试规则已删除；5xx 规则 `noDataState=OK`，避免无数据误报。
+仍未做：生产通知目标（邮件/企业微信/webhook 地址）、Collector 高可用/持久化。
 
 ## 3. 测试
 

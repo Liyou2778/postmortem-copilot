@@ -5,7 +5,7 @@
 > **交付状态（2026-11-24）：M10 核心版本已冻结。**
 > 已完成核心链路、评测 3/3、CMDB 租户隔离、K8s 多副本、RBAC/完整 OIDC 联调、
 > CI 门禁、真实 OTel Collector/Jaeger。**PRD 100% 未完成**，单节点非 HA、
-> OIDC 生产化、Network/IO 可观测、Grafana 告警通知等例外见
+> OIDC 生产化、Network/IO 可观测、生产告警通知目标等例外见
 > [M10 核心交付验收报告](docs/M10核心交付验收报告.md)。
 
 > 设计文档见上级目录：[P1-技术设计.md](../P1-技术设计.md)
@@ -226,7 +226,7 @@ docker-compose.yml
 1. OIDC 生产化：Keycloak 当前 dev/HTTP/H2，需要 HTTPS、持久化、备份、轮换；
 2. 跨节点 K8s HA（当前单节点 k3d）；
 3. Network/IO Chaos 可观测验收；
-4. Grafana 告警通知渠道（看板/规则已通）；
+4. 生产告警通知目标（本地 webhook 已验证）；
 5. ~~远端 GitHub Actions 实际运行~~ ✅ 已运行两次成功；
 6. 管理页/CMDB 写表单的逐表单 CSRF（登录表单已完成）。
 7. 影响面业务系数（财务口径）仍未配置。

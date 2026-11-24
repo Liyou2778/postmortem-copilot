@@ -1,0 +1,13 @@
+[Unit]
+Description=Grafana alert webhook verification receiver
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/copilot
+ExecStart=/opt/copilot/.venv/bin/python /opt/copilot/scripts/grafana_webhook_receiver.py
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
