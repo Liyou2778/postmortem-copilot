@@ -14,7 +14,7 @@ from urllib.parse import urlencode
 import httpx
 import jwt
 from fastapi import APIRouter, HTTPException, Request
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel, Field
 
 from .config import Settings
@@ -166,6 +166,39 @@ def build_router(security: SecurityStore, settings: Settings) -> APIRouter:
             secure=request.url.scheme == "https", path="/",
         )
 
+    def csrf_secret() -> str:
+        return (
+            settings.oidc_state_secret or settings.oidc_client_secret
+            or settings.bootstrap_admin_password or settings.admin_password
+            or "dev-csrf-secret"
+        )
+
+    def issue_csrf() -> str:
+        return _sign({"n": secrets.token_urlsafe(16), "exp": time.time() + 3600},
+                     csrf_secret())
+
+    def csrf_valid(request: Request, supplied: str) -> bool:
+        token = request.cookies.get("csrf_token", "")
+        return bool(
+            token and supplied
+            and secrets.compare_digest(token, supplied)
+            and _verify(token, csrf_secret()) is not None
+        )
+
+    def login_html(request: Request, error: str = "") -> HTMLResponse:
+        from .render import login_page
+
+        token = issue_csrf()
+        response = HTMLResponse(login_page(
+            settings.auth_enabled, error=error,
+            oidc_enabled=oidc_ready(), csrf_token=token,
+        ))
+        response.set_cookie(
+            "csrf_token", token, httponly=True, samesite="lax", max_age=3600,
+            secure=request.url.scheme == "https", path="/",
+        )
+        return response
+
     def oidc_ready() -> bool:
         return bool(
             settings.oidc_issuer and settings.oidc_client_id
@@ -279,24 +312,22 @@ def build_router(security: SecurityStore, settings: Settings) -> APIRouter:
         return response
 
     @router.get("/login")
-    def login_page() -> Any:
-        from .render import login_page
-
-        return login_page(settings.auth_enabled, oidc_enabled=oidc_ready())
+    def login_page(request: Request) -> Any:
+        return login_html(request)
 
     @router.post("/login")
     async def login_form(request: Request) -> Any:
-        from .render import login_page
-
         body = (await request.body()).decode("utf-8", errors="replace")
         from urllib.parse import parse_qs
 
         form = {k: v[0] for k, v in parse_qs(body, keep_blank_values=True).items()}
+        if not csrf_valid(request, form.get("csrf_token", "")):
+            return HTMLResponse("CSRF token invalid", status_code=403)
         principal = security.authenticate(
             form.get("username", ""), form.get("password", "")
         )
         if not principal:
-            return login_page(settings.auth_enabled, error="用户名或密码错误")
+            return login_html(request, error="用户名或密码错误")
         token = security.create_session(
             {"user_id": principal.user_id, "tenant_id": principal.tenant_id,
              "role": principal.role},

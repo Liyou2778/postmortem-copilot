@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import re
 import sys
 import unittest
 
@@ -101,6 +102,19 @@ class TestAuthRouter(unittest.TestCase):
         client = TestClient(app)
         self.assertEqual(client.get("/api/v1/auth/oidc/login").status_code, 503)
 
+    def test_login_form_requires_csrf(self):
+        page = self.client.get("/login")
+        self.assertEqual(page.status_code, 200)
+        missing = self.client.post("/login", data={
+            "username": "alice", "password": "correct-horse",
+        })
+        self.assertEqual(missing.status_code, 403)
+        token = re.search(r'name="csrf_token" value="([^"]+)"', page.text).group(1)
+        ok = self.client.post("/login", data={
+            "username": "alice", "password": "correct-horse",
+            "csrf_token": token,
+        }, follow_redirects=False)
+        self.assertEqual(ok.status_code, 303)
     def test_login_page_renders(self):
         resp = self.client.get("/login")
         self.assertEqual(resp.status_code, 200)

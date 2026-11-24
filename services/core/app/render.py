@@ -188,7 +188,7 @@ def _page(title: str, body: str) -> str:
 
 
 def login_page(auth_enabled: bool = True, error: str = "",
-               oidc_enabled: bool = False) -> str:
+               oidc_enabled: bool = False, csrf_token: str = "") -> str:
     warning = (
         "" if auth_enabled else
         '<p class="muted">AUTH_ENABLED=false：当前实例未启用登录校验。</p>'
@@ -203,6 +203,7 @@ def login_page(auth_enabled: bool = True, error: str = "",
   {warning}
   {_flash("", error)}
   <form method="post" action="/login">
+    <input type="hidden" name="csrf_token" value="{html.escape(csrf_token)}">
     <div><label>用户名</label><input name="username" autocomplete="username" required></div>
     <div><label>密码</label><input type="password" name="password"
       autocomplete="current-password" required></div>

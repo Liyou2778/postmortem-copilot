@@ -175,7 +175,7 @@ v2 viewer token：200，返回 11 条（仅 team-core）
 数据质量：unowned=0, unattached=1（ActionTrail 审计桶，正常）
 ActionTrail：copilot-cmdb-trail / Enable / All / OSS
 分析链路：8/8 证据 real，工具调用全部 ok
-测试：218 / 218
+测试：219 / 219
 ```
 
 管理页：
