@@ -30,7 +30,19 @@ target: chaos-client pod
 - 独立 client Pod 访问 Service 基线超时，测量链路未建立；
 - 公网 healthz 未观察到稳定 300ms 延迟。
 
+后续进一步排查：
+
+```text
+普通 client Pod 直连 app Pod IP：正常（5–50ms）
+client Pod 访问 ClusterIP：超时（k3d 环境异常）
+NetworkChaos direction=to，target=client：无延迟
+NetworkChaos direction=both，target=client：无延迟
+```
+
 结论：只证明“可创建/可清理”，**没有可归因延迟证据**。
+高度怀疑是 k3d / chaos-daemon 无法对目标 Pod 网络命名空间应用 tc/netem，
+不是业务代码问题。要完成该项，需要换 k3s/kind 多节点或调整 chaos-daemon
+运行方式，不能在这个 k3d 环境里继续宣称通过。
 
 ### HTTPChaos delay：未通过
 

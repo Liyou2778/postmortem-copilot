@@ -23,4 +23,4 @@ spec:
         - copilot
       labelSelectors:
         role: chaos-client
-  direction: to
+  direction: both
