@@ -30,19 +30,39 @@ target: chaos-client pod
 - 独立 client Pod 访问 Service 基线超时，测量链路未建立；
 - 公网 healthz 未观察到稳定 300ms 延迟。
 
-后续进一步排查：
+后续进一步排查并修复了根因：
 
 ```text
-普通 client Pod 直连 app Pod IP：正常（5–50ms）
-client Pod 访问 ClusterIP：超时（k3d 环境异常）
-NetworkChaos direction=to，target=client：无延迟
-NetworkChaos direction=both，target=client：无延迟
+host 内核 ip_tables / iptable_filter 模块未加载
+-> chaos-daemon 在 Pod netns 初始化 iptables 失败
+-> NetworkChaos 实际未生效
 ```
 
-结论：只证明“可创建/可清理”，**没有可归因延迟证据**。
-高度怀疑是 k3d / chaos-daemon 无法对目标 Pod 网络命名空间应用 tc/netem，
-不是业务代码问题。要完成该项，需要换 k3s/kind 多节点或调整 chaos-daemon
-运行方式，不能在这个 k3d 环境里继续宣称通过。
+修复：
+
+```bash
+modprobe ip_tables
+modprobe iptable_filter
+# 持久化
+/etc/modules-load.d/chaos-iptables.conf
+```
+
+修复后，用普通 client Pod 直连 app Pod IP 测量：
+
+```text
+基线：
+  10.42.0.116:8000 -> 37ms
+  10.42.0.115:8000 -> 5ms
+
+NetworkChaos delay 300ms + jitter 50ms，direction=both，target=client：
+  10.42.0.116:8000 -> 1.255s
+  10.42.0.115:8000 -> 1.229s
+```
+
+结论：**NetworkChaos delay 已产生可归因延迟，通过。**
+
+注意：公网 NodePort 测量未观察到延迟，因为该客户端路径没有被 target selector 命中；
+验收必须使用固定 client Pod 直连 app Pod IP 的测量口径。
 
 ### HTTPChaos delay：未通过
 
@@ -92,16 +112,27 @@ IOChaos：
   - 需要明确挂载路径与目标文件，否则不做
 ```
 
-## 3. 需要用户确认
-
-1. 是否接受上述 KPI？
-2. NetworkChaos 的 client 测量是否可以由我在集群内创建测试 Pod？
-3. 是否必须覆盖 IOChaos，还是只做 Network/CPU/HTTP？
-
-## 4. 当前结论
+## 3. 已确认可复现
 
 ```text
-PodChaos：通过
-Network/HTTP/Stress/IO：未通过可观测验收
-PRD 100% 的 Chaos 项不能标记完成
+PodChaos pod-kill：通过
+NetworkChaos delay：通过
+  baseline 5–37ms -> during 1.23–1.25s，target=client，direction=both
+修复：host 加载 ip_tables / iptable_filter，并写入 modules-load.d
+```
+
+## 4. 仍需完成
+
+```text
+HTTPChaos：修复后可重试，尚未作为验收项
+StressChaos CPU：仍无可归因指标
+IOChaos：未做
+```
+
+## 5. 当前结论
+
+```text
+PodChaos + NetworkChaos delay：通过可观测验收
+HTTP/Stress/IO：未完成
+PRD 100% 的 Chaos 场景库仍不完整
 ```

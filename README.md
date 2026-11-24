@@ -5,7 +5,7 @@
 > **交付状态（2026-11-24）：M10 核心版本已冻结。**
 > 已完成核心链路、评测 3/3、CMDB 租户隔离、K8s 多副本、RBAC/完整 OIDC 联调、
 > CI 门禁、真实 OTel Collector/Jaeger。**PRD 100% 未完成**，单节点非 HA、
-> OIDC 生产化、Network/IO 可观测、生产告警通知目标等例外见
+> OIDC 生产化、HTTP/Stress/IO Chaos、生产告警通知目标等例外见
 > [M10 核心交付验收报告](docs/M10核心交付验收报告.md)。
 
 > 设计文档见上级目录：[P1-技术设计.md](../P1-技术设计.md)
@@ -68,7 +68,7 @@
 | **M10.4 通用 DAG + 局部重规划** | ✅ 已上线 | DAG 校验/拓扑执行；失败只跳过下游，独立分支继续；一致性哈希分配 |
 | **M10.5 K8s 多副本 + 切流** | ✅ 已上线 | k3d 单节点、Helm、2 副本、滚动更新 30/30 无中断；公网 8000 -> 代理 -> K8s |
 | **M10.6 本地认证 + 团队租户** | ✅ 已上线 | 本地账号/API Key、viewer/operator/tenant_admin/platform_admin、任务/报告/OSS/CMDB 租户隔离、DB 限流、同源 CSRF；完整 OIDC 授权码流程已用 Keycloak 联调（dev），可信 header 模式保留 |
-| **M10.7 Chaos + 负对照** | ✅ 核心冻结 | Chaos Mesh 2.8.8、PodChaos pod-kill、负对照修复、真实评测 3/3（8/8 real）、评测 CI 门禁；Network/StressChaos 只到可创建/清理，IO 可观测验收未完成，列入 PRD100 例外 |
+| **M10.7 Chaos + 负对照** | ✅ 核心冻结 | Chaos Mesh 2.8.8、PodChaos pod-kill、NetworkChaos delay 可观测（5–37ms -> 1.23s）、负对照、评测 3/3、CI 门禁；HTTP/Stress/IO 场景未完成 |
 | docker compose | ✅ 配置完成（含 profiles） | `config` 校验通过；镜像拉取受网络限制，未跑通 |
 
 **已验证的部分**
@@ -226,7 +226,7 @@ docker-compose.yml
 
 1. OIDC 生产化：Keycloak 当前 dev/HTTP/H2，需要 HTTPS、持久化、备份、轮换；
 2. 跨节点 K8s HA（当前单节点 k3d）；
-3. Network/IO Chaos 可观测验收；
+3. HTTP/Stress/IO Chaos 场景；
 4. 生产告警通知目标（本地 webhook 已验证）；
 5. ~~远端 GitHub Actions 实际运行~~ ✅ 已运行两次成功；
 6. ~~表单级 CSRF~~ ✅ 登录表单 + `/admin/*` HTML 表单已完成。
