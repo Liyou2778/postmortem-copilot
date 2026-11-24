@@ -11,8 +11,8 @@ spec:
     labelSelectors:
       app.kubernetes.io/name: postmortem-copilot
       app.kubernetes.io/instance: copilot
-  target: Request
+  target: Response
   port: 8000
-  path: /healthz
+  # no path filter: all HTTP requests
   delay: "300ms"
   duration: "30s"

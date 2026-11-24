@@ -66,21 +66,16 @@ NetworkChaos delay 300ms + jitter 50ms，direction=both，target=client：
 
 ### HTTPChaos delay：未通过
 
-```text
-path: /healthz
-target: Response
-delay: 300ms
-mode: all
-```
-
-结果：
+修复 iptables 模块后重试：
 
 ```text
-大部分 200 请求 6–47ms
-1 次 000 / 2.2s
+target=Request，path=/healthz：200，无 300ms 延迟
+target=Response，path=/healthz：200，无 300ms 延迟
+target=Response，去掉 path：200，无延迟
 ```
 
-没有稳定 300ms 延迟，不能算通过。
+不再出现 000 连接错误，但 HTTPChaos 没有产生可归因延迟；
+在 k3d 下仍不能作为验收项。
 
 ### StressChaos CPU：通过
 
