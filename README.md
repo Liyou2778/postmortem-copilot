@@ -227,7 +227,7 @@ docker-compose.yml
 2. 跨节点 K8s HA（当前单节点 k3d）；
 3. Network/IO Chaos 可观测验收；
 4. Grafana 看板/告警（Collector/Jaeger 已通）；
-5. 远端 GitHub Actions 实际运行；
+5. ~~远端 GitHub Actions 实际运行~~ ✅ 已运行两次成功；
 6. 表单级 CSRF。
 7. 影响面业务系数（财务口径）仍未配置。
 
