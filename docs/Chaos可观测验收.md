@@ -74,8 +74,15 @@ target=Response，path=/healthz：200，无 300ms 延迟
 target=Response，去掉 path：200，无延迟
 ```
 
-不再出现 000 连接错误，但 HTTPChaos 没有产生可归因延迟；
-在 k3d 下仍不能作为验收项。
+不再出现 000 连接错误，但 HTTPChaos 没有产生可归因延迟。
+再用固定 client 直连 app Pod IP 测试：
+
+```text
+baseline 10.42.0.115 -> 21.8ms
+during  10.42.0.115 -> 44.5ms
+```
+
+仍无 300ms 延迟，在 k3d 下不能作为验收项。
 
 ### StressChaos CPU：通过
 
