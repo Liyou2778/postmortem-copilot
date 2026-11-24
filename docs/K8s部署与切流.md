@@ -56,7 +56,7 @@ python scripts/switch_catalog_host.py --host 127.0.0.1 --apply
 镜像：
 
 ```text
-postmortem-copilot:m10.7y (M10 核心冻结；认证/租户 + DAG + OTel 导出适配器；mock receiver 已停止)
+postmortem-copilot:m10.7z (M10 核心冻结；认证/租户 + DAG + OTel 导出适配器；mock receiver 已停止)
 ```
 
 构建时使用阿里云 PyPI 镜像，避免中国大陆访问 PyPI 超时：

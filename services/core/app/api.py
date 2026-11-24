@@ -10,13 +10,16 @@ import json
 import logging
 import os
 import re
+import secrets
 import time
 from typing import Any
+from urllib.parse import parse_qs
 
 from fastapi import BackgroundTasks, FastAPI, Header, HTTPException, Query, Request, Response
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
+from . import csrf as csrf_module
 from . import incidents, memory, render
 from .archive import ArchiveStore, OssArchiver
 from .catalog import CatalogStore
@@ -201,6 +204,52 @@ async def _auth_and_tenant(request: Request, call_next):  # noqa: ANN001, ANN201
                     )
                 return JSONResponse({"detail": "forbidden"}, status_code=404)
 
+    return await call_next(request)
+
+
+@app.middleware("http")
+async def _csrf_admin_forms(request: Request, call_next):  # noqa: ANN001, ANN201
+    """Double-submit CSRF for the admin HTML forms.
+
+    The login form has its own token; this guard is scoped to /admin to avoid
+    changing API clients or the public login flow.
+    """
+    path = request.url.path
+    if not path.startswith("/admin"):
+        return await call_next(request)
+    cookie = request.cookies.get(csrf_module.COOKIE, "")
+    cookie_ok = bool(cookie and csrf_module.verify(cookie, _settings))
+    if request.method in ("GET", "HEAD"):
+        token = cookie if cookie_ok else csrf_module.issue(_settings)
+        render.set_csrf_token(token)
+        response = await call_next(request)
+        if not cookie_ok:
+            response.set_cookie(
+                csrf_module.COOKIE, token, httponly=True, samesite="lax",
+                max_age=3600, secure=request.url.scheme == "https", path="/",
+            )
+        return response
+    if (
+        request.method == "POST"
+        and request.headers.get("content-type", "").startswith(
+            "application/x-www-form-urlencoded"
+        )
+    ):
+        body = await request.body()
+        form = {
+            key: values[0]
+            for key, values in parse_qs(
+                body.decode("utf-8", errors="replace"), keep_blank_values=True
+            ).items()
+        }
+        supplied = form.get("csrf_token", "")
+        if not (
+            cookie_ok and supplied
+            and secrets.compare_digest(cookie, supplied)
+        ):
+            return HTMLResponse("CSRF token invalid", status_code=403)
+        # Downstream route reads request.body(); keep the consumed bytes cached.
+        request._body = body
     return await call_next(request)
 
 

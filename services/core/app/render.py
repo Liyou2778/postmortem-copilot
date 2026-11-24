@@ -13,7 +13,14 @@ from __future__ import annotations
 import html
 import json
 import re
+from contextvars import ContextVar
 from typing import Any
+
+_CSRF_TOKEN: ContextVar[str] = ContextVar("csrf_token", default="")
+
+
+def set_csrf_token(token: str) -> None:
+    _CSRF_TOKEN.set(token or "")
 
 # A deliberately small Markdown subset renderer.
 #
@@ -171,7 +178,29 @@ def _pill(status: str) -> str:
     return f'<span class="pill {cls}">{html.escape(status)}</span>'
 
 
+def _inject_csrf(body: str) -> str:
+    token = _CSRF_TOKEN.get()
+    if not token:
+        return body
+    hidden = (
+        '<input type="hidden" name="csrf_token" value="'
+        f'{html.escape(token)}">'
+    )
+
+    def repl(match: re.Match[str]) -> str:
+        tag = match.group(0)
+        if "csrf_token" in tag:
+            return tag
+        return tag + hidden
+
+    return re.sub(
+        r'(<form\b[^>]*method=["\']post["\'][^>]*>)',
+        repl, body, flags=re.IGNORECASE,
+    )
+
+
 def _page(title: str, body: str) -> str:
+    body = _inject_csrf(body)
     return f"""<!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">

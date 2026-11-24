@@ -74,7 +74,7 @@
 **已验证的部分**
 
 ```bash
-# 1) 单元测试：219 个（领域 + 编排 + 可靠性 + 目录/MCP + 网关/影响面 + 指标包 + CMDB/图/审批 + DAG + 认证/租户 + CPU 指标），零外部依赖
+# 1) 单元测试：221 个（领域 + 编排 + 可靠性 + 目录/MCP + 网关/影响面 + 指标包 + CMDB/图/审批 + DAG + 认证/租户 + CPU 指标），零外部依赖
 python -m unittest discover -s services/core/tests -v
 
 # 2) 端到端冒烟：18 项断言（创建→规划→租约→执行→交付→事件校验）
@@ -86,7 +86,7 @@ curl -X POST localhost:8000/api/v1/tasks/<id>/run \
   -d '{"service_name":"order-service","window":"30m"}'
 ```
 
-最近一次结果：**219 / 219 测试通过**（ECS Python 3.11 同样 219 OK / 1 skipped）。
+最近一次结果：**221 / 221 测试通过**（ECS Python 3.11 同样 221 OK / 1 skipped）。
 生产实测：`ecs-copilot` 真实 Prometheus + Loki + 企业级 CMDB 分析产出 **8 条真实证据 / 3 条结论**，
 含云资源拓扑、变更、Trace、成本与影响面章节；`order-service` devstack 分析产出 5 条 Mock 证据 / 3 条结论，报告首行强制标黄。
 真实评测：M10.7 在 K8s/Chaos 环境使用 CPU 利用率 + 磁盘/内存指标包复跑为
@@ -199,7 +199,7 @@ services/core/
     catalog.py        服务目录 / 数据源绑定 / 解析（DB 层）
     catalog_router.py 服务 → 数据源路由 + real|mock 注入
     catalog_api.py    /admin 管理页 + /api/v1/catalog JSON
-  tests/              219 个 stdlib unittest
+  tests/              221 个 stdlib unittest
 services/mcp_servers/ 6 个 stdio MCP server（prometheus/loki/cmdb/deploy/ticket/kb）
 services/cmdb/        企业级 CMDB：CI 图 / 审批 / 审计 / RBAC / 阿里云发现（127.0.0.1:9200）
 services/devstack/    故障注入 Mock 上游（9100/9101）
@@ -228,7 +228,7 @@ docker-compose.yml
 3. Network/IO Chaos 可观测验收；
 4. 生产告警通知目标（本地 webhook 已验证）；
 5. ~~远端 GitHub Actions 实际运行~~ ✅ 已运行两次成功；
-6. 管理页/CMDB 写表单的逐表单 CSRF（登录表单已完成）。
+6. ~~表单级 CSRF~~ ✅ 登录表单 + `/admin/*` HTML 表单已完成。
 7. 影响面业务系数（财务口径）仍未配置。
 
 冻结口径：以上未完成前，只称“M10 核心完成”，不称 PRD 100%。
