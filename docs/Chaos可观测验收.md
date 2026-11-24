@@ -82,13 +82,17 @@ mode: all
 
 没有稳定 300ms 延迟，不能算通过。
 
-### StressChaos：未通过
+### StressChaos CPU：通过
 
 ```text
 CPU workers=2 load=100
+节点 CPU 利用率（Prometheus）：
+  baseline 18.2%
+  during   53.17%
+  after    28.13%
 ```
 
-资源可创建/清理，公网仍 200；没有可归因 CPU/延迟变化。
+资源创建/清理正常，节点 CPU 有明显可归因上升。
 
 ## 2. 建议验收 KPI
 
@@ -124,15 +128,17 @@ NetworkChaos delay：通过
 ## 4. 仍需完成
 
 ```text
-HTTPChaos：修复后可重试，尚未作为验收项
-StressChaos CPU：仍无可归因指标
+HTTPChaos：target=Request/Response 都出现 000 连接错误，未通过
 IOChaos：未做
 ```
 
 ## 5. 当前结论
 
 ```text
-PodChaos + NetworkChaos delay：通过可观测验收
-HTTP/Stress/IO：未完成
+PodChaos：通过
+NetworkChaos delay：通过
+StressChaos CPU：通过
+HTTPChaos：未通过
+IOChaos：未做
 PRD 100% 的 Chaos 场景库仍不完整
 ```
