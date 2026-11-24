@@ -166,7 +166,7 @@ python scripts/sync_aliyun_cmdb.py --apply --changes --hours 2
 
 ```text
 CMDB 服务：active
-CI：11（tenant=team-core）
+CI：12（tenant=team-core）
 ci_relation / change_request 已加 tenant_id
 租户计数：team-core=11
 v2 viewer token：200，返回 11 条（仅 team-core）
